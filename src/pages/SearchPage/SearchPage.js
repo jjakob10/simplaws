@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useStateValue } from "../../context/StateProvider";
 import useGoogleSearch from "../../useGoogleSearch";
 import Search from "../../components/Search/Search";
-
+import TweetBox2 from "./TweetBox2";
+import Post from "./Post";
+import { db } from "../../firebase";
 import SearchIcon from "@material-ui/icons/Search";
+import FlipMove from "react-flip-move";
+
 // import DescriptionIcon from "@material-ui/icons/Description";
 // import ImageIcon from "@material-ui/icons/Image";
 // import LocalOfferIcon from "@material-ui/icons/LocalOffer";
@@ -13,8 +17,17 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import "./SearchPage.css";
 
 const SearchPage = () => {
-  const [{ term }] = useStateValue();
-  const { data } = useGoogleSearch(term); // custom hook!
+  const [{ term, user }, dispatch] = useStateValue();
+  const { data } = useGoogleSearch(term);
+
+  const [posts, setPosts] = useState([]);
+
+
+  useEffect(() => {
+    db.collection("lawyer").orderBy("timestamp", "desc").onSnapshot((snapshot) =>
+      setPosts(snapshot.docs.map((doc) => doc.data()))
+    );
+  }, []);
 
   return (
     <div className="searchPage">
@@ -34,28 +47,22 @@ const SearchPage = () => {
             <div className="searchPage__optionsLeft">
               <div className="searchPage__option">
                 <SearchIcon />
-                <Link to="/all">Results</Link>
+                <Link to="/">{!user ? 'Welcome guest!' : 'Hello lawyer!'}</Link>
               </div>
 
               <div className="searchPage__option">
                 <MoreVertIcon />
-                lawyer feedback
-              </div>
-            </div>
-
-            <div className="searchPage__optionsRight">
-              <div className="searchPage__option">
-                <Link to="/settings">Settings</Link>
-              </div>
-
-              <div className="searchPage__option">
-                <Link to="/tools">Tools</Link>
+                <Link to={!user && '/login'}>
+                  <div className="header__option">
+                    <span className="header__optionLineOne">{!user ? 'Are you a lawyer?' : user.email}</span>
+                  </div>
+                </Link>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
       {term && (
         <div className="searchPage__results">
           <p className="searchPage__resultCount">
@@ -87,7 +94,39 @@ const SearchPage = () => {
           ))}
         </div>
       )}
+
+      <div className="feed">
+        <div className="feed__header">
+          <h2>SimpLaws</h2>
+          <h4>Recent Lawyer Feedback for {term}</h4>
+        </div>
+      </div>
+
+      {user ? (
+        <TweetBox2 />
+      ) : (
+        <>
+
+        </>
+
+      )}
+
+
+      <FlipMove>
+        {posts.map((post) => (
+          <Post
+            key={post.text}
+            email={post.email}
+            text={post.text}
+            image={post.image}
+            timestamp={new Date(post.timestamp?.toDate()).toUTCString()}
+          />
+        ))}
+      </FlipMove>
     </div>
+
+
+
   );
 };
 
