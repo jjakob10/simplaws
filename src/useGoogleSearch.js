@@ -7,9 +7,10 @@ const useGoogleSearch = (term) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      fetch(`https://simplaws.herokuapp.com/search?=${term}`)
+      fetch(`https://simplaws.herokuapp.com/search?term=${term}`)
         .then((response) => response.json())
         .then((result) => {
+          console.log(result.resp);
           setData(result.resp);
         });
     };
