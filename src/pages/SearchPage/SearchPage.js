@@ -8,6 +8,7 @@ import Post from "./Post";
 import { db } from "../../firebase";
 import SearchIcon from "@material-ui/icons/Search";
 import FlipMove from "react-flip-move";
+import logo from "../../assets/logosquare.png";
 
 // import DescriptionIcon from "@material-ui/icons/Description";
 // import ImageIcon from "@material-ui/icons/Image";
@@ -22,22 +23,19 @@ const SearchPage = () => {
 
   const [posts, setPosts] = useState([]);
 
-
   useEffect(() => {
-    db.collection("lawyer").orderBy("timestamp", "desc").onSnapshot((snapshot) =>
-      setPosts(snapshot.docs.map((doc) => doc.data()))
-    );
+    db.collection("lawyer")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) =>
+        setPosts(snapshot.docs.map((doc) => doc.data()))
+      );
   }, []);
 
   return (
     <div className="searchPage">
       <div className="searchPage__header">
         <Link to="/">
-          <img
-            className="searchPage__logo"
-            src="https://media.discordapp.net/attachments/809080871181221958/823672092394258443/unknown.png"
-            alt=""
-          />
+          <img className="searchPage__logo" src={logo} alt="" />
         </Link>
 
         <div className="searchPage__headerBody">
@@ -47,21 +45,22 @@ const SearchPage = () => {
             <div className="searchPage__optionsLeft">
               <div className="searchPage__option">
                 <SearchIcon />
-                <Link to="/">{!user ? 'Welcome guest!' : 'Hello lawyer!'}</Link>
+                <Link to="/">{!user ? "Welcome guest!" : "Hello lawyer!"}</Link>
               </div>
 
               <div className="searchPage__option">
                 <MoreVertIcon />
-                <Link to={!user && '/login'}>
+                <Link to={!user && "/login"}>
                   <div className="header__option">
-                    <span className="header__optionLineOne">{!user ? 'Are you a lawyer?' : user.email}</span>
+                    <span className="header__optionLineOne">
+                      {!user ? "Are you a lawyer?" : user.email}
+                    </span>
                   </div>
                 </Link>
               </div>
             </div>
           </div>
         </div>
-
       </div>
       {term && (
         <div className="searchPage__results">
@@ -102,15 +101,7 @@ const SearchPage = () => {
         </div>
       </div>
 
-      {user ? (
-        <TweetBox2 />
-      ) : (
-        <>
-
-        </>
-
-      )}
-
+      {user ? <TweetBox2 /> : <></>}
 
       <FlipMove>
         {posts.map((post) => (
@@ -124,9 +115,6 @@ const SearchPage = () => {
         ))}
       </FlipMove>
     </div>
-
-
-
   );
 };
 
